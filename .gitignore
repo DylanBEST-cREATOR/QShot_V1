@@ -1,0 +1,92 @@
+# Build output directories
+Build/
+build/
+BUILD/
+Output/
+output/
+OUTPUT/
+Objects/
+objects/
+Listing/
+listing/
+LISTING/
+
+# Keil project files (user-specific or generated)
+*.uvprojx.bak
+*.uvoptx.bak
+*.uvproj
+*.uvopt
+*.uvgui*
+*.tgf
+
+# Generated files by compiler/linker
+*.axf
+*.axf.map
+*.map
+*.o
+*.d
+*.lnp
+*.tra
+*.iex
+*.htm
+*.sct
+*.bin
+*.hex
+*.elf
+*.lib
+*.ar
+*.a
+
+# Temporary and backup files
+*~
+.*.swp
+._*
+
+# IDE temporary files
+.DS_Store
+Thumbs.db
+
+# Debug and profiling files
+Debug/
+debug/
+DEBUG/
+Release/
+release/
+RELEASE/
+
+# Intermediate files
+*.iex
+*.tmp
+*.lst
+*.log
+
+# Settings and user files (personal)
+.uvprojx.user
+.uvoptx.user
+*.bak
+*.old
+*.orig
+
+# CMSIS Pack manager cache (if used)
+.pack/
+*.pdsc
+
+# Other toolchains if co-used (optional, keep if not used)
+*.i
+*.s
+*.inc
+
+# Flash download folders (Keil creates these)
+Flash/Download/
+
+# Settings folder (Keil v5+)
+.settings/
+
+# Eclipse-style project files (if using packs with Eclipse-based tools)
+.project
+.cproject
+.launches/
+
+# Compiler intermediate directories
+*.Obj/
+*.crf
