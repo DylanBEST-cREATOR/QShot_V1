@@ -25,7 +25,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "application.h"
+#include "My_Driver.h"
+#include "FOC_Math.h"
+#include "FOC_Transforms.h"
+#include "FOC_Svpwm.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +49,28 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+// user debug variables
+#define PHASE_SHIFT_120   2.0943951f
+#define  STEP_UNIT_20KHZ   0.000314
+float  Target_Freq =  10; 
+float theta_a;
+float theta_b;
+float theta_c;
+
+SinCos_t sc_a;
+SinCos_t sc_b;
+SinCos_t sc_c;
+
+
+Clark_t ABC_To_AlphaBeta;
+Park_t  AlphaBeta_To_DQ;
+Ip_t    UdUq_To_UalphaUbeta;
+SVPWM_t SVPWM;
+
+float sin_value;
+float cos_value;
+float theta;
+// user debug variables
 
 /* USER CODE END PV */
 
@@ -68,6 +93,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	theta = 0;
 
   /* USER CODE END 1 */
 
@@ -77,7 +103,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -93,7 +119,8 @@ int main(void)
   MX_SPI3_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  MySystemInit();
+	DRV8301_Init();
+//  MySystemInit();
 	HAL_TIM_Base_Start(&htim1);
   HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
@@ -121,6 +148,56 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+		theta += Target_Freq*STEP_UNIT_20KHZ ;
+		if(theta >= 6.28f) theta -= 6.28f;
+		theta_a = theta;
+		AL_fastSinCos(theta_a, &sc_a);
+		
+		
+		theta_b = theta - PHASE_SHIFT_120;
+		if(theta_b < 0.0f)
+		{
+			theta_b += 6.28f;
+		}
+		AL_fastSinCos(theta_b, &sc_b);
+		
+		theta_c = theta + PHASE_SHIFT_120;
+		if(theta_c > 6.28f)
+		{
+			theta_c -= 6.28f;
+		}
+		AL_fastSinCos(theta_c, &sc_c);
+		
+		ABC_To_AlphaBeta.I_a = sc_a.s;
+		ABC_To_AlphaBeta.I_b = sc_b.s;
+		ABC_To_AlphaBeta.I_c = sc_c.s;
+		AL_Clark(& ABC_To_AlphaBeta);
+		
+		AlphaBeta_To_DQ.I_alpha = ABC_To_AlphaBeta.I_alpha;
+		AlphaBeta_To_DQ.I_beta = ABC_To_AlphaBeta.I_beta;
+		AlphaBeta_To_DQ.theta = theta;
+		
+		AL_Park(&AlphaBeta_To_DQ,sc_a.s,sc_a.c);
+		//省略PI控制器
+		UdUq_To_UalphaUbeta.d = 0;
+		UdUq_To_UalphaUbeta.q = 1;
+		UdUq_To_UalphaUbeta.theta = theta;
+		
+		AL_InvPark(&UdUq_To_UalphaUbeta,sc_a.s,sc_a.c);
+		
+		SVPWM.T_pwm = 8400;
+		SVPWM.U_alpha = UdUq_To_UalphaUbeta.U_alpha;
+		SVPWM.U_beta = UdUq_To_UalphaUbeta.U_beta;
+		SVPWM.U_dc = 24;
+		
+		AL_SVPWM_Calculate(&SVPWM);
+		for(volatile uint32_t i = 0;i<2000;i++);
+		
+		
+		
+		
+		
+		
 
     /* USER CODE BEGIN 3 */
   }
@@ -170,6 +247,10 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
+  /** Enables the Clock Security System
+  */
+  HAL_RCC_EnableCSS();
 }
 
 /* USER CODE BEGIN 4 */

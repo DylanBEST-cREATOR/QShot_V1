@@ -1,8 +1,10 @@
-#ifndef __MIDWARE_H
-#define __MIDWARE_H
+#ifndef __MY_GATEDRIVER_H
+#define __MY_GATEDRIVER_H
 #include "stm32f4xx_hal.h"
-#include "common.h"
 #include "spi.h"
+#define USE_DRV8301
+
+
 
 #if defined(USE_DRV8323)
 /* DRV8323 midware */
@@ -354,5 +356,3 @@ extern void LED_Init(void);
 
 
 #endif
-
-

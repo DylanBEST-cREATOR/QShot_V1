@@ -1,4 +1,7 @@
-#include "Midware.h"
+#include "My_GateDriver.h"
+#include "CommonDefine.h"
+
+
 
 
 void DRV8323Spi_CsReSet(void);
@@ -397,6 +400,9 @@ u16 EncoderSpi_SendReceive(u8* Txdata, u8* Rxdata, u16 Size, u32 Timeout){
    return 0;
 
 }
+
+
+
 
 
 

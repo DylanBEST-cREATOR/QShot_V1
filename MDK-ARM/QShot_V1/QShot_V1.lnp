@@ -1,5 +1,6 @@
 --cpu=Cortex-M4.fp.sp
 "qshot_v1\startup_stm32f405xx.o"
+"qshot_v1\user_interrupt.o"
 "qshot_v1\main.o"
 "qshot_v1\gpio.o"
 "qshot_v1\spi.o"
@@ -25,9 +26,16 @@
 "qshot_v1\stm32f4xx_hal_tim.o"
 "qshot_v1\stm32f4xx_hal_tim_ex.o"
 "qshot_v1\stm32f4xx_hal_uart.o"
-"qshot_v1\application.o"
-"qshot_v1\midware.o"
-"qshot_v1\algorithm.o"
+"qshot_v1\foc_math.o"
+"qshot_v1\foc_transforms.o"
+"qshot_v1\foc_svpwm.o"
+"qshot_v1\foc_pid.o"
+"qshot_v1\foc_observer.o"
+"qshot_v1\app_interface.o"
+"qshot_v1\app_control.o"
+"qshot_v1\app_protect.o"
+"qshot_v1\my_gatedriver.o"
+"qshot_v1\my_encoder.o"
 --strict --scatter "QShot_V1\QShot_V1.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
