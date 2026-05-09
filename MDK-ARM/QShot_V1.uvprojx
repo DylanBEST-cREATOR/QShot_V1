@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F405xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc;D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;D:/STM32Cube_FW_F4_V1.28.3/Drivers/CMSIS/Device/ST/STM32F4xx/Include;D:/STM32Cube_FW_F4_V1.28.3/Drivers/CMSIS/Include;../APP;../FOC_Core;../My_Driver;../User</IncludePath>
+              <IncludePath>../Core/Inc;D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc;D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;D:/STM32Cube_FW_F4_V1.28.3/Drivers/CMSIS/Device/ST/STM32F4xx/Include;D:/STM32Cube_FW_F4_V1.28.3/Drivers/CMSIS/Include;../APP;../My_Driver;../User;..\FOC_Core</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1631,6 +1631,11 @@
               <FileType>5</FileType>
               <FilePath>..\FOC_Core\FOC_Observer.h</FilePath>
             </File>
+            <File>
+              <FileName>FOC_Qformat.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\FOC_Core\FOC_Qformat.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1665,6 +1670,11 @@
               <FileName>APP_Protect.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\APP\APP_Protect.h</FilePath>
+            </File>
+            <File>
+              <FileName>APP_Params.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\APP_Params.h</FilePath>
             </File>
           </Files>
         </Group>

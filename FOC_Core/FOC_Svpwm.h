@@ -11,5 +11,5 @@ typedef struct {
     float Duty_B;
     float Duty_C;
 } SVPWM_t;
-extern void AL_SVPWM_Calculate(volatile SVPWM_t *SVPWM);
+extern void FS_SVPWM_Calculate(SVPWM_t *SVPWM_Compnents);
 #endif

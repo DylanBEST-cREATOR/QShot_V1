@@ -36,9 +36,8 @@ qshot_v1\main.o: ../Core/Inc/spi.h
 qshot_v1\main.o: ../Core/Inc/tim.h
 qshot_v1\main.o: ../Core/Inc/usart.h
 qshot_v1\main.o: ../Core/Inc/gpio.h
-qshot_v1\main.o: ../My_Driver/My_Driver.h
-qshot_v1\main.o: ../My_Driver/My_GateDriver.h
-qshot_v1\main.o: ../My_Driver/My_Encoder.h
-qshot_v1\main.o: ../FOC_Core/FOC_Math.h
-qshot_v1\main.o: ../FOC_Core/FOC_Transforms.h
-qshot_v1\main.o: ../FOC_Core/FOC_Svpwm.h
+qshot_v1\main.o: ..\FOC_Core\FOC_Math.h
+qshot_v1\main.o: ..\FOC_Core\FOC_Qformat.h
+qshot_v1\main.o: ..\FOC_Core\FOC_Transforms.h
+qshot_v1\main.o: ../APP/APP_Interface.h
+qshot_v1\main.o: ../APP/APP_Params.h

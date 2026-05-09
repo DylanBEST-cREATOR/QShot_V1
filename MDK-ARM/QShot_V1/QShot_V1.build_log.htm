@@ -22,27 +22,39 @@ Dialog DLL:      TCM.DLL V1.48.0.0
  
 <h2>Project:</h2>
 C:\Users\Dylan Qiu\Desktop\design\software\QSHOT\QShot_V1\MDK-ARM\QShot_V1.uvprojx
-Project File Date:  05/08/2026
+Project File Date:  05/09/2026
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'D:\keil5\keil\ARM\ARMCC\Bin'
 Build target 'QShot_V1'
+compiling FOC_Transforms.c...
+..\FOC_Core\FOC_Qformat.h(43): warning:  #1-D: last line of file ends without a newline
+  #endif // Q16_MATH_H
+../APP/APP_Params.h(15): warning:  #1-D: last line of file ends without a newline
+  #endif
+../APP/APP_Interface.h(31): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\FOC_Core\FOC_Math.h(71): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\FOC_Core\FOC_Transforms.h(94): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\FOC_Core\FOC_Transforms.c: 5 warnings, 0 errors
 compiling main.c...
-../My_Driver/My_Encoder.h(4): warning:  #1-D: last line of file ends without a newline
+..\FOC_Core\FOC_Qformat.h(43): warning:  #1-D: last line of file ends without a newline
+  #endif // Q16_MATH_H
+..\FOC_Core\FOC_Math.h(71): warning:  #1-D: last line of file ends without a newline
   #endif
-../My_Driver/My_Driver.h(5): warning:  #1-D: last line of file ends without a newline
+../APP/APP_Params.h(15): warning:  #1-D: last line of file ends without a newline
   #endif
-../FOC_Core/FOC_Math.h(25): warning:  #1-D: last line of file ends without a newline
+../APP/APP_Interface.h(31): warning:  #1-D: last line of file ends without a newline
   #endif
-../FOC_Core/FOC_Transforms.h(34): warning:  #1-D: last line of file ends without a newline
+..\FOC_Core\FOC_Transforms.h(94): warning:  #1-D: last line of file ends without a newline
   #endif
-../Core/Src/main.c(151): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		theta += Target_Freq*STEP_UNIT_20KHZ ;
 ../Core/Src/main.c: 5 warnings, 0 errors
 linking...
-Program Size: Code=13054 RO-data=450 RW-data=68 ZI-data=1956  
+Program Size: Code=3870 RO-data=450 RW-data=76 ZI-data=1676  
 FromELF: creating hex file...
-"QShot_V1\QShot_V1.axf" - 0 Error(s), 5 Warning(s).
+"QShot_V1\QShot_V1.axf" - 0 Error(s), 10 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -66,7 +78,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:5.4.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:04
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>

@@ -25,10 +25,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "My_Driver.h"
 #include "FOC_Math.h"
 #include "FOC_Transforms.h"
-#include "FOC_Svpwm.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,26 +48,15 @@
 
 /* USER CODE BEGIN PV */
 // user debug variables
-#define PHASE_SHIFT_120   2.0943951f
-#define  STEP_UNIT_20KHZ   0.000314
-float  Target_Freq =  10; 
-float theta_a;
-float theta_b;
-float theta_c;
-
-SinCos_t sc_a;
+ SinCos_t sc_a;
 SinCos_t sc_b;
-SinCos_t sc_c;
-
-
-Clark_t ABC_To_AlphaBeta;
-Park_t  AlphaBeta_To_DQ;
-Ip_t    UdUq_To_UalphaUbeta;
-SVPWM_t SVPWM;
-
-float sin_value;
-float cos_value;
-float theta;
+   SinCos_t sc_c;
+  uint16_t theta;
+ Current_Sense_t current;
+  Clarke_t Clark;
+  Park_t   Park;
+	Park_t   Ipark;
+	Clarke_t  Clark2;
 // user debug variables
 
 /* USER CODE END PV */
@@ -93,8 +80,10 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	theta = 0;
-
+  theta = 0;
+	current.Ia = 0;
+	current.Ib = 0;
+	current.Ic = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -114,32 +103,13 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_TIM1_Init();
-  MX_SPI3_Init();
-  MX_USART2_UART_Init();
+
   /* USER CODE BEGIN 2 */
-	DRV8301_Init();
+
+
 //  MySystemInit();
-	HAL_TIM_Base_Start(&htim1);
-  HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
-	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_3);
-	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_1);
-	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_2);
-	HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_3);	
-	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,2000);
-	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_2,2000);
-	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_3,2000);
+
 	
-//		HAL_TIM_Base_Start(&htim1);
-//	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
-//	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_2);
-//	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_3);
-//	
-//	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,2000);
-//	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_2,2000);
-//	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_3,2000);
 	
   /* USER CODE END 2 */
 
@@ -148,56 +118,43 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-		theta += Target_Freq*STEP_UNIT_20KHZ ;
-		if(theta >= 6.28f) theta -= 6.28f;
-		theta_a = theta;
-		AL_fastSinCos(theta_a, &sc_a);
+/* USER CODE END WHILE */
+
+    // 1. 计算三相的 16 位电角度（依靠 uint16_t 自动实现多圈回绕，angle 永远不会越界）
+    uint16_t theta_a = theta;
+    uint16_t theta_b = theta - 21845; // 减去 120 度
+    uint16_t theta_c = theta + 21845; // 加上 120 度
+    
+    // 2. 转换成三角函数要求的 Q16 标幺输入（0 ~ 131072 代表 0 ~ 2pi）
+    // 左移 1 位（相当于乘以 2），将 0~65535 映射到 0~131070
+    q16_t angle_a = (q16_t)theta_a << 1;
+    q16_t angle_b = (q16_t)theta_b << 1;
+    q16_t angle_c = (q16_t)theta_c << 1;
+
+    // 3. 运行定点快速正余弦函数
+    FM_fastSinCos(angle_a, &sc_a);
+    FM_fastSinCos(angle_b, &sc_b);
+    FM_fastSinCos(angle_c, &sc_c);
+
+    // 4. 角度递增（步长 100 左右波形就很平滑了）
+    theta += 100;
 		
+
+		current.Ia = sc_a.s;
+		current.Ib = sc_b.s;
+		current.Ic = sc_c.s;
 		
-		theta_b = theta - PHASE_SHIFT_120;
-		if(theta_b < 0.0f)
-		{
-			theta_b += 6.28f;
-		}
-		AL_fastSinCos(theta_b, &sc_b);
+		FT_Clarke_Transform(&current, &Clark);
 		
-		theta_c = theta + PHASE_SHIFT_120;
-		if(theta_c > 6.28f)
-		{
-			theta_c -= 6.28f;
-		}
-		AL_fastSinCos(theta_c, &sc_c);
+		FT_Park_Transform(&Clark,&sc_a,&Park);
+		//
+		Ipark.d = 0;
+		Ipark.q = 65536;
+		FT_InvPark_Transform(&Ipark,&sc_a,&Clark2);
 		
-		ABC_To_AlphaBeta.I_a = sc_a.s;
-		ABC_To_AlphaBeta.I_b = sc_b.s;
-		ABC_To_AlphaBeta.I_c = sc_c.s;
-		AL_Clark(& ABC_To_AlphaBeta);
-		
-		AlphaBeta_To_DQ.I_alpha = ABC_To_AlphaBeta.I_alpha;
-		AlphaBeta_To_DQ.I_beta = ABC_To_AlphaBeta.I_beta;
-		AlphaBeta_To_DQ.theta = theta;
-		
-		AL_Park(&AlphaBeta_To_DQ,sc_a.s,sc_a.c);
-		//省略PI控制器
-		UdUq_To_UalphaUbeta.d = 0;
-		UdUq_To_UalphaUbeta.q = 1;
-		UdUq_To_UalphaUbeta.theta = theta;
-		
-		AL_InvPark(&UdUq_To_UalphaUbeta,sc_a.s,sc_a.c);
-		
-		SVPWM.T_pwm = 8400;
-		SVPWM.U_alpha = UdUq_To_UalphaUbeta.U_alpha;
-		SVPWM.U_beta = UdUq_To_UalphaUbeta.U_beta;
-		SVPWM.U_dc = 24;
-		
-		AL_SVPWM_Calculate(&SVPWM);
-		for(volatile uint32_t i = 0;i<2000;i++);
-		
-		
-		
-		
-		
-		
+
+    // 软件延时，防止跑得太快 J-Scope 采样率跟不上
+    for(volatile uint32_t i = 0; i < 20000; i++);
 
     /* USER CODE BEGIN 3 */
   }

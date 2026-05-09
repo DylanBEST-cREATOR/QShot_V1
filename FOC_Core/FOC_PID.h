@@ -18,4 +18,7 @@ typedef struct {
     float Integral;    
     float Output;
 } PID_t;
+
+extern  void FP_PID_Calculate(volatile PID_t *PID, volatile float measured_value);
+
 #endif
