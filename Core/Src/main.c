@@ -163,26 +163,31 @@ my_pid.Last_Fdb = 0;
 		FT_Park_Transform(&Clark,&sc_a,&Park);
 		//
 		Ipark.d = 0;
-		Ipark.q = 65536;
+		Ipark.q = 32768;
 		FT_InvPark_Transform(&Ipark,&sc_a,&Clark2);
 		
 		
-		step_timer++;
-    if (step_timer < 5000) {
-        my_pid.Ref = 0;                     // 目标值给 0
-    } else if (step_timer < 10000) {
-        my_pid.Ref = 32768;                 // 目标值给 0.5 PU (16384对应12V/24V)
-    } else {
-        step_timer = 0;
-    }
+//		step_timer++;
+//    if (step_timer < 5000) {
+//        my_pid.Ref = 0;                     // 目标值给 0
+//    } else if (step_timer < 10000) {
+//        my_pid.Ref = 32768;                 // 目标值给 0.5 PU (16384对应12V/24V)
+//    } else {
+//        step_timer = 0;
+//    }
 
-    // 3. 运行你的定点化 PID 计算
-    FS_PID_Calculate((PID_t *)&my_pid, test_fdb);
+//    // 3. 运行你的定点化 PID 计算
+//    FS_PID_Calculate((PID_t *)&my_pid, test_fdb);
 
     // 4. 模拟虚拟电机（一阶惯性环节）
     // 反馈值 test_fdb 追随 Output，">> 5" 控制滞后时间（数值越大，电机惯性越大，追得越慢）
-    test_fdb += (my_pid.Output - test_fdb) >> 5;
-//		FS_SVPWM_Calculate(SVPWM_t *SVPWM_Compnents);
+//    test_fdb += (my_pid.Output - test_fdb) >> 5;
+		
+		SVPWM_Components.T_pwm  = 3500;
+		SVPWM_Components.U_dc   = 65536;
+		SVPWM_Components.U_alpha = Clark2.alpha;
+		SVPWM_Components.U_beta = Clark2.beta;
+		FS_SVPWM_Calculate(&SVPWM_Components);
 		
 
     // 软件延时，防止跑得太快 J-Scope 采样率跟不上

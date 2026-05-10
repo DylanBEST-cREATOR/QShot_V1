@@ -20,23 +20,23 @@ static __inline q16_t _Q16sat(int64_t val, q16_t max, q16_t min) {
 
 
 
-#define BASE_CURRENT      (30.0f)     // 电流基准：30 A
-#define BASE_VOLTAGE      (24.0f)     // 电压基准：24 V
-#define BASE_FREQ         (583.0f)    // 频率基准：583 Hz
+//#define BASE_CURRENT      (30.0f)     // 电流基准：30 A
+//#define BASE_VOLTAGE      (24.0f)     // 电压基准：24 V
+//#define BASE_FREQ         (583.0f)    // 频率基准：583 Hz
 
-// ==================== 2. 物理值转 Q16 标幺值宏 ====================
-// 输入：浮点物理值 (如 1.5A, 12V)
-// 输出：Q16 格式的标幺值
-#define PHYS_TO_I_PU(i)   ((q16_t)(((float)(i) / BASE_CURRENT) * 65536.0f))
-#define PHYS_TO_V_PU(v)   ((q16_t)(((float)(v) / BASE_VOLTAGE) * 65536.0f))
-#define PHYS_TO_F_PU(f)   ((q16_t)(((float)(f) / BASE_FREQ) * 65536.0f))
+//// ==================== 2. 物理值转 Q16 标幺值宏 ====================
+//// 输入：浮点物理值 (如 1.5A, 12V)
+//// 输出：Q16 格式的标幺值
+//#define PHYS_TO_I_PU(i)   ((q16_t)(((float)(i) / BASE_CURRENT) * 65536.0f))
+//#define PHYS_TO_V_PU(v)   ((q16_t)(((float)(v) / BASE_VOLTAGE) * 65536.0f))
+//#define PHYS_TO_F_PU(f)   ((q16_t)(((float)(f) / BASE_FREQ) * 65536.0f))
 
-// ==================== 3. Q16 标幺值还原为浮点物理值宏 ====================
-// 输入：Q16 格式的标幺值
-// 输出：浮点物理值
-#define I_PU_TO_PHYS(i_pu)  (((float)(i_pu) / 65536.0f) * BASE_CURRENT)
-#define V_PU_TO_PHYS(v_pu)  (((float)(v_pu) / 65536.0f) * BASE_VOLTAGE)
-#define F_PU_TO_PHYS(f_pu)  (((float)(f_pu) / 65536.0f) * BASE_FREQ)
+//// ==================== 3. Q16 标幺值还原为浮点物理值宏 ====================
+//// 输入：Q16 格式的标幺值
+//// 输出：浮点物理值
+//#define I_PU_TO_PHYS(i_pu)  (((float)(i_pu) / 65536.0f) * BASE_CURRENT)
+//#define V_PU_TO_PHYS(v_pu)  (((float)(v_pu) / 65536.0f) * BASE_VOLTAGE)
+//#define F_PU_TO_PHYS(f_pu)  (((float)(f_pu) / 65536.0f) * BASE_FREQ)
 
 
 
