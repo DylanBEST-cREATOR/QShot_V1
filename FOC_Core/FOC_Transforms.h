@@ -1,7 +1,7 @@
 #ifndef __FOC_TRANSFORMS_H
 #define __FOC_TRANSFORMS_H
 #include "FOC_Qformat.h"
-#include "APP_Interface.h"
+#include "FOC_Svpwm.h"
 #include "FOC_Math.h"
 
 
@@ -91,4 +91,7 @@ static __inline void FT_InvPark_Transform(const Park_t *park, const SinCos_t *si
     int64_t temp_beta = ((int64_t)vd * sin_t) + ((int64_t)vq * cos_t);
     clarke->beta = (q16_t)(temp_beta >> 16);
 }
+
+
+
 #endif

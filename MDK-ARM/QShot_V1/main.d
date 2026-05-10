@@ -39,5 +39,6 @@ qshot_v1\main.o: ../Core/Inc/gpio.h
 qshot_v1\main.o: ..\FOC_Core\FOC_Math.h
 qshot_v1\main.o: ..\FOC_Core\FOC_Qformat.h
 qshot_v1\main.o: ..\FOC_Core\FOC_Transforms.h
-qshot_v1\main.o: ../APP/APP_Interface.h
+qshot_v1\main.o: ..\FOC_Core\FOC_Svpwm.h
 qshot_v1\main.o: ../APP/APP_Params.h
+qshot_v1\main.o: ..\FOC_Core\FOC_PID.h

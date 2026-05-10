@@ -27,6 +27,8 @@
 /* USER CODE BEGIN Includes */
 #include "FOC_Math.h"
 #include "FOC_Transforms.h"
+#include "FOC_Svpwm.h"
+#include "FOC_PID.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,6 +59,12 @@ SinCos_t sc_b;
   Park_t   Park;
 	Park_t   Ipark;
 	Clarke_t  Clark2;
+	SVPWM_t   SVPWM_Components;
+	
+	volatile PID_t my_pid;
+volatile q16_t test_ref = 0;    // J-Scope 手动修改的目标给定值
+volatile q16_t test_fdb = 0;    // 虚拟电机的反馈值
+volatile uint32_t step_timer = 0; // 阶跃信号生成器
 // user debug variables
 
 /* USER CODE END PV */
@@ -109,7 +117,13 @@ int main(void)
 
 //  MySystemInit();
 
-	
+my_pid.Kp = 32768;      // Kp = 0.5 PU (0.5 * 65536)
+my_pid.Ki = 6553;        // Ki = 0.01 PU (0.01 * 65536) - 积分先给小一点
+my_pid.Kd = 0;          // Kd = 0
+my_pid.Out_Max = 65536; // 限幅在 1.0 PU
+my_pid.Out_Min = -65536;// 限幅在 -1.0 PU
+my_pid.Integral = 0;
+my_pid.Last_Fdb = 0;
 	
   /* USER CODE END 2 */
 
@@ -151,6 +165,24 @@ int main(void)
 		Ipark.d = 0;
 		Ipark.q = 65536;
 		FT_InvPark_Transform(&Ipark,&sc_a,&Clark2);
+		
+		
+		step_timer++;
+    if (step_timer < 5000) {
+        my_pid.Ref = 0;                     // 目标值给 0
+    } else if (step_timer < 10000) {
+        my_pid.Ref = 32768;                 // 目标值给 0.5 PU (16384对应12V/24V)
+    } else {
+        step_timer = 0;
+    }
+
+    // 3. 运行你的定点化 PID 计算
+    FS_PID_Calculate((PID_t *)&my_pid, test_fdb);
+
+    // 4. 模拟虚拟电机（一阶惯性环节）
+    // 反馈值 test_fdb 追随 Output，">> 5" 控制滞后时间（数值越大，电机惯性越大，追得越慢）
+    test_fdb += (my_pid.Output - test_fdb) >> 5;
+//		FS_SVPWM_Calculate(SVPWM_t *SVPWM_Compnents);
 		
 
     // 软件延时，防止跑得太快 J-Scope 采样率跟不上

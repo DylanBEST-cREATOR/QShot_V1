@@ -1,7 +1,7 @@
 #include "APP_Interface.h"
 
 
-void AI_ADCVoltageOffsets_Get(Current_Sense_t* ADC_VOLTAGE) {
+void AI_ADCVoltageOffsets_Get(Current_Offset_t* ADC_VOLTAGE) {
     // 1. 初始化 32 位局部累加器（每次调用强制清零，绝对安全）
     uint32_t sum_offset_1 = 0; 
     uint32_t sum_offset_2 = 0;
@@ -34,30 +34,5 @@ void AI_ADCVoltageOffsets_Get(Current_Sense_t* ADC_VOLTAGE) {
 }
 
 
-void AI_ADCValueToCurrent(Current_Sense_t *current) {
-    // 1. 读取最新的硬件 ADC 寄存器原始值（请根据你实际的寄存器修改 ADC->DR0 等）
-//    current->adc_raw_1 = ADC->DR0; // A相
-//    current->adc_raw_2 = ADC->DR1; // B相
-
-    // 2. 减去校准好的硬件中点偏置，得到纯净的 ADC 偏差刻度值 (Q0 格式整数)
-    int32_t diff_a = current->adc_raw_1 - current->offset_1;
-    int32_t diff_b = current->adc_raw_2 - current->offset_2;
-
-    // 3. 计算 A 相和 B 相的标幺化 Q16 电流
-    // 算法解析：
-    // a. (int64_t)diff_a * current->adc_to_pu_gain 
-    //    将 32 位整数与 Q16 增益相乘。因为增益值高达 11537153，相乘极易溢出，
-    //    所以强制转为 64 位整型（int64_t）进行计算，确保绝对安全。
-    // b. >> 16
-    //    右移 16 位，消去增益系数本身多带的 65536 倍，还原为标准的 Q16 格式。
-    // c. 负号 '-' 
-    //    保留你原本电路反相运放特性的负号。
-    current->Ia = -(q16_t)(((int64_t)diff_a * current->adc_to_pu_gain) >> 16);
-    current->Ib = -(q16_t)(((int64_t)diff_b * current->adc_to_pu_gain) >> 16);
-
-    // 4. 根据基尔霍夫电流定律计算 C 相电流：Ia + Ib + Ic = 0  =>  Ic = -(Ia + Ib)
-    // 直接进行 Q16 级别的加减法，没有任何精度损失
-    current->Ic = -(current->Ia + current->Ib);
-}
 
 
