@@ -2,7 +2,7 @@
 #define __APP_INTERFACE_H
 #include "APP_Params.h"
 #include "FOC_Qformat.h"
-
+#include "stm32f4xx_hal.h"
 typedef struct {
     // ==================== 1. 硬件偏置值 ====================
     int32_t offset_1;           // 通道 1 (A相) 偏置 (Q0 原始值)

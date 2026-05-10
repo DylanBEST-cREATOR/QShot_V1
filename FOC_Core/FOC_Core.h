@@ -1,103 +1,48 @@
 #ifndef __FOC_CORE_H
 #define __FOC_CORE_H
+#include "FOC_Math.h"
+#include "FOC_Transforms.h"
+#include "FOC_Svpwm.h"
+#include "FOC_PID.h"
+#include "FOC_Observer.h"
 
 
 
-#define _round(x) ((x)>=0?(long)((x)+0.5f):(long)((x)-0.5f))
-        
-#define PID_CURRENT_OPTION
-#define PID_SPEED_OPTION
-
-#define VOLTS_TO_AMPS_RATIO  2.0f  
-
-
-
-
-
-
-
+/**
+ * @brief FOC 核心控制总结构体
+ * @note  该结构体统一管理一个 FOC 电机实例的所有实时状态、采样输入与控制输出。
+ */
 typedef struct {
-    float U_alpha;      // 输入 Alpha 轴电压
-    float U_beta;       // 输入 Beta 轴电压
-    float U_dc;         // 母线电压
-    float T_pwm;        // PWM 周期（或设置为 1.0 用于输出占空比）
-    
-    
-    float Duty_A;
-    float Duty_B;
-    float Duty_C;
-} SVPWM_t;
+    // ==================== 1. 系统级实时输入 (每次执行 FOC 前必须更新) ====================
+    q16_t angle;                // 实时电角度标幺值 (Q16格式, [-65536, 65536] 对应 [-pi, pi])
+    uint16_t adc_vbus_raw;      // 母线电压 ADC 原始采样值 (Q0 格式)
 
-typedef struct {
-    
-    float Kp;
-    float Ki;
-    float Kd;
+    // ==================== 2. 子算法模块状态管理 ====================
+    Current_Sense_t current;    // 电流采样与相电流重建模块
+    SinCos_t sincos;            // 快速正余弦计算结果存储
+    Clarke_t clarke_i;          // 电流 Clarke 变换输出 (Ialpha, Ibeta)
+    Park_t park_i;              // 电流 Park 变换输出 (Id, Iq)
+    PID_t pid_d;                // d 轴电流 PI 调节器
+    PID_t pid_q;                // q 轴电流 PI 调节器
+    Park_t park_v;              // 反 Park 变换输入电压 (Vd, Vq)
+    Clarke_t clarke_v;          // 反 Park 变换输出电压 (Valpha, Vbeta)
+    SVPWM_t svpwm;              // SVPWM 计算模块（含 A/B/C 三相占空比输出）
+} FOC_Core_t;
 
-    
-    float Out_Max;
-    float Out_Min;
+/* ==================== 核心函数接口 ==================== */
 
-    // 变量
-    float Ref;        
-    float Fdb;        
-    float Last_Fdb;    
-    float Error;       
-    float Integral;    
-    float Output;
-} PID_t;
+/**
+ * @brief  FOC 核心控制结构体初始化
+ * @param  core:  FOC核心结构体指针
+ * @param  t_pwm: 定时器 PWM 周期（即自动重装载寄存器 ARR 的值，如 3500）
+ */
+void FC_Core_Init(FOC_Core_t *core, uint32_t t_pwm);
 
-// Clark 变换对象
-typedef struct {
-    float I_a;  
-    float I_b;        
-    float I_c;     
-    float I_alpha; 
-    float I_beta;   
-} Clark_t;
+/**
+ * @brief  FOC 核心控制算法单次执行函数 (电流环核心)
+ * @param  core:  FOC核心结构体指针
+ * @note   通常在 ADC 采样完成中断或定时器溢出中断中调用。
+ */
+void FC_FOC_Core(FOC_Core_t *core);
 
-// Park 变换对象
-typedef struct {
-    float I_alpha;  // Input: stationary alpha-axis
-    float I_beta;   // Input: stationary beta-axis
-    float theta;  // Input: rotor angle (0~2PI)
-    float I_d;      // Output: rotating d-axis
-    float I_q;      // Output: rotating q-axis
-} Park_t;
-
-// 反 Park 变换对象
-typedef struct {
-    float d;      // Input: rotating d-axis
-    float q;      // Input: rotating q-axis
-    float theta;  // Input: rotor angle (0~2PI)
-    float U_alpha;  // Output: stationary alpha-axis
-    float U_beta;   // Output: stationary beta-axis
-} Ip_t;
-
-
-typedef struct {
-    float theta;            // 输入：电角度 (0~2PI)
-    float Target_Id;        // 输入：D轴目标电流
-    float Target_Iq;        // 输入：Q轴目标电流
-
-    // 算法子模块实例
-    Clark_t  Clark;         // Clark 变换
-    Park_t   Park;          // Park 变换
-    Ip_t     InvPark;       // 反 Park 变换
-    SVPWM_t  SVPWM;         // SVPWM 模块
-    
-    PID_t    PidId;         // D 轴电流 PID
-    PID_t    PidIq;         // Q 轴电流 PID
-} FOC_t;
-
-
-extern float AL_electricalAngle(float shaft_angle, int pole_pairs);
-extern float AL_normalizeAngle(float angle);
-//extern static __inline void AL_Clark(Clark_t *CLARK);
-//extern static __inline void AL_InvPark(Ip_t *IPARK, float sin_t, float cos_t);
-//extern static __inline void AL_Park(Park_t *PARK, float sin_t, float cos_t);
-extern void Al_FOCCalc_Init(volatile FOC_t *FOC);
-extern void Al_FOC_Calculate(volatile FOC_t *FOC);
-
-
-#endif
+#endif /* __FOC_CORE_H */
