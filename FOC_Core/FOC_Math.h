@@ -10,6 +10,12 @@
 
 
 
+typedef struct {
+    q16_t Target_Freq_Hz;   // 目标电频率 (Hz, Q16格式)
+    uint32_t Ctrl_Freq_Hz;  // 控制环路频率 (PWM中断频率, 如 20000)
+    q16_t Angle_Step;       // 每步增加的角度 (Q16格式)
+    q16_t Current_Angle;    // 当前输出电角度 (Q16格式, [-65536, 65536])
+} VirtualAngle_t;	
 
 typedef struct {
     q16_t s;      // sin(theta) 的 Q16 标幺值
@@ -26,6 +32,7 @@ static __inline void FM_fastSinCos(volatile q16_t angle, volatile SinCos_t *sc) 
 
     // 边界检查：若大于 pi (65536)，则减去 2*pi (131072) 限制到 [-pi, pi] 之间
     if (x > Q16_PI) x -= Q16_2PI;
+	  if (x < -Q16_PI) x += Q16_2PI;
 
     // ==================== 1. 正弦计算 ====================
     q16_t abs_x = (x < 0) ? -x : x;
@@ -67,5 +74,48 @@ static __inline void FM_fastSinCos(volatile q16_t angle, volatile SinCos_t *sc) 
 
     sc->c = term + y;
 }
+
+typedef struct {
+    int32_t LastOutput; // 上一次的滤波输出 (Q16)
+    int32_t Alpha;      // 滤波系数 (Q16, 0~65536 对应 0~1.0)
+} LPF_t;
+
+static __inline q16_t FM_LPF_Calculate(LPF_t *lpf, int32_t input) {
+    int32_t error = input - lpf->LastOutput;
+    // 使用 int64_t 强制转换，防止乘法溢出
+    int32_t delta = (int32_t)(((int64_t)lpf->Alpha * error) >> 16);
+    lpf->LastOutput += delta;
+    return lpf->LastOutput;
+}
+
+/**
+ * @brief 更新虚拟角度步长
+ * @param v_angle: 结构体指针
+ * @param target_rpm: 目标机械转速 (Q0)
+ * @param pole_pairs: 电机极对数
+ */
+
+
+/**
+ * @brief 虚拟角度累加器 (每中断调用一次)
+ */
+static __inline q16_t FM_VirtualAngle_Update(VirtualAngle_t *v_angle) {
+    // 1. 角度累加
+    v_angle->Current_Angle += v_angle->Angle_Step;
+
+    // 2. 双边回绕检查 (适配你的 FM_fastSinCos [-PI, PI] 要求)
+    if (v_angle->Current_Angle > 65536) {
+        v_angle->Current_Angle -= 131072;
+    } else if (v_angle->Current_Angle < -65536) {
+        v_angle->Current_Angle += 131072;
+    }
+
+    return v_angle->Current_Angle;
+}
+
+ void FM_VirtualAngle_SetSpeed(VirtualAngle_t *v_angle, int32_t target_rpm, uint8_t pole_pairs);
+
+
+
 
 #endif

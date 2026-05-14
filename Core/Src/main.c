@@ -22,12 +22,12 @@
 #include "dma.h"
 #include "spi.h"
 #include "tim.h"
-#include "usart.h"
 #include "usb_otg.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "APP_Control.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,6 +49,9 @@
 
 /* USER CODE BEGIN PV */
 // user debug variables
+extern MotorState_t AC_Motor_State;
+volatile uint16_t Global_AS5600_Raw_Angle; // 在 main 的 while(1) 里更新
+volatile uint16_t AS5600_Zero_Offset;      // 在 ROTOR_ALIGN 结束时记录
 // user debug variables
 
 /* USER CODE END PV */
@@ -96,7 +99,6 @@ int main(void)
   MX_DMA_Init();
   MX_TIM1_Init();
   MX_SPI3_Init();
-  MX_USART2_UART_Init();
   MX_ADC1_Init();
   MX_ADC2_Init();
   MX_USB_OTG_FS_PCD_Init();
@@ -104,7 +106,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 
-//  MySystemInit();
+  //
+  AC_MySystem_Init();	
 
 	
   /* USER CODE END 2 */
@@ -113,6 +116,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+//		// 1. 持续读取当前原始角度
+//    uint16_t temp_angle = _ME_AS5600_Read_Raw_Angle();
+//    
+//    // 只有读到的不是错误值（0xFFFF）时才更新全局变量
+//    if(temp_angle != 0xFFFF) {
+//        Global_AS5600_Raw_Angle = temp_angle;
+//	}
+//}
+    
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -33,7 +33,6 @@ qshot_v1\stm32f4xx_hal_dma.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_D
 qshot_v1\stm32f4xx_hal_dma.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h
 qshot_v1\stm32f4xx_hal_dma.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 qshot_v1\stm32f4xx_hal_dma.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
-qshot_v1\stm32f4xx_hal_dma.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 qshot_v1\stm32f4xx_hal_dma.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h
 qshot_v1\stm32f4xx_hal_dma.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
 qshot_v1\stm32f4xx_hal_dma.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h

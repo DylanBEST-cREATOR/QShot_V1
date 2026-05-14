@@ -97,7 +97,7 @@ void MX_ADC1_Init(void)
   sConfigInjected.InjectedChannel = ADC_CHANNEL_10;
   sConfigInjected.InjectedRank = 1;
   sConfigInjected.InjectedNbrOfConversion = 1;
-  sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_28CYCLES;
+  sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_56CYCLES;
   sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONVEDGE_RISING;
   sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJECCONV_T1_CC4;
   sConfigInjected.AutoInjectedConv = DISABLE;
@@ -168,7 +168,7 @@ void MX_ADC2_Init(void)
   sConfigInjected.InjectedChannel = ADC_CHANNEL_11;
   sConfigInjected.InjectedRank = 1;
   sConfigInjected.InjectedNbrOfConversion = 1;
-  sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_28CYCLES;
+  sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_56CYCLES;
   sConfigInjected.AutoInjectedConv = ENABLE;
   sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
   sConfigInjected.InjectedOffset = 0;
@@ -200,10 +200,10 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     PC0     ------> ADC1_IN10
     PA5     ------> ADC1_IN5
     */
-    GPIO_InitStruct.Pin = SOC_Pin;
+    GPIO_InitStruct.Pin = SOB_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(SOC_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(SOB_GPIO_Port, &GPIO_InitStruct);
 
     GPIO_InitStruct.Pin = AUX_TEMP_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -251,7 +251,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     PA6     ------> ADC2_IN6
     PC5     ------> ADC2_IN15
     */
-    GPIO_InitStruct.Pin = SOB_Pin|MOS_TEMP_Pin;
+    GPIO_InitStruct.Pin = SOC_Pin|MOS_TEMP_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
@@ -285,7 +285,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     PC0     ------> ADC1_IN10
     PA5     ------> ADC1_IN5
     */
-    HAL_GPIO_DeInit(SOC_GPIO_Port, SOC_Pin);
+    HAL_GPIO_DeInit(SOB_GPIO_Port, SOB_Pin);
 
     HAL_GPIO_DeInit(AUX_TEMP_GPIO_Port, AUX_TEMP_Pin);
 
@@ -318,7 +318,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     PA6     ------> ADC2_IN6
     PC5     ------> ADC2_IN15
     */
-    HAL_GPIO_DeInit(GPIOC, SOB_Pin|MOS_TEMP_Pin);
+    HAL_GPIO_DeInit(GPIOC, SOC_Pin|MOS_TEMP_Pin);
 
     HAL_GPIO_DeInit(VBUS_GPIO_Port, VBUS_Pin);
 

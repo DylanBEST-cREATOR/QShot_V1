@@ -27,6 +27,8 @@ typedef struct {
     Park_t park_v;              // 反 Park 变换输入电压 (Vd, Vq)
     Clarke_t clarke_v;          // 反 Park 变换输出电压 (Valpha, Vbeta)
     SVPWM_t svpwm;              // SVPWM 计算模块（含 A/B/C 三相占空比输出）
+	   LPF_t lpfi_d;
+     LPF_t lpfi_q;
 } FOC_Core_t;
 
 /* ==================== 核心函数接口 ==================== */
@@ -44,5 +46,8 @@ void FC_Core_Init(FOC_Core_t *core, uint32_t t_pwm);
  * @note   通常在 ADC 采样完成中断或定时器溢出中断中调用。
  */
 void FC_FOC_Core(FOC_Core_t *core);
+extern void FC_SpeedLoop_Execute(uint16_t current_angle);
+extern void FC_SpeedLoop_Reset(uint16_t current_angle);
+void FC_FOC_OpenLoop_Rotate(FOC_Core_t *core, q16_t v_mag, q16_t angle_step);
 
 #endif /* __FOC_CORE_H */

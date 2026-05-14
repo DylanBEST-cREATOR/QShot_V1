@@ -34,7 +34,6 @@ qshot_v1\main.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm
 qshot_v1\main.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h
 qshot_v1\main.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 qshot_v1\main.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
-qshot_v1\main.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 qshot_v1\main.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h
 qshot_v1\main.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
 qshot_v1\main.o: D:/STM32Cube_FW_F4_V1.28.3/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
@@ -42,6 +41,18 @@ qshot_v1\main.o: ../Core/Inc/adc.h
 qshot_v1\main.o: ../Core/Inc/dma.h
 qshot_v1\main.o: ../Core/Inc/spi.h
 qshot_v1\main.o: ../Core/Inc/tim.h
-qshot_v1\main.o: ../Core/Inc/usart.h
 qshot_v1\main.o: ../Core/Inc/usb_otg.h
 qshot_v1\main.o: ../Core/Inc/gpio.h
+qshot_v1\main.o: ../APP/APP_Control.h
+qshot_v1\main.o: ../APP/APP_Interface.h
+qshot_v1\main.o: ../APP/APP_Params.h
+qshot_v1\main.o: ../My_Driver/My_Driver.h
+qshot_v1\main.o: ../My_Driver/My_GateDriver.h
+qshot_v1\main.o: ../My_Driver/My_Encoder.h
+qshot_v1\main.o: ../FOC_Core/FOC_Core.h
+qshot_v1\main.o: ../FOC_Core/FOC_Math.h
+qshot_v1\main.o: ../FOC_Core/FOC_Qformat.h
+qshot_v1\main.o: ../FOC_Core/FOC_Transforms.h
+qshot_v1\main.o: ../FOC_Core/FOC_Svpwm.h
+qshot_v1\main.o: ../FOC_Core/FOC_PID.h
+qshot_v1\main.o: ../FOC_Core/FOC_Observer.h

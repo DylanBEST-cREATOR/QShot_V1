@@ -312,6 +312,7 @@ typedef enum {
 
 
 extern void DRV8301_Init(void);
+extern void DRV8301_CAL(void);
 extern uint8_t DRV8301_Diagnose(void);
 #endif
 
