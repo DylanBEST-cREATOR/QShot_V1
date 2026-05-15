@@ -14,5 +14,8 @@
 extern uint16_t MT6701_Get_Raw_Angle(void);
 #if defined (USE_AS5600)
 extern uint16_t _ME_AS5600_Read_Raw_Angle(void);
+
+
+
 #endif
 #endif

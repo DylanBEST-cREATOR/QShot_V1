@@ -24,17 +24,12 @@
 //#define POLE_PAIRS 7   // 替换为你电机的实际极对数
 
 /* ==================== 速度环标幺化参数 ==================== */
-// 1. 速度计算系数 (针对 1ms 采样周期, 4096线编码器)
-// 计算逻辑：RPM = (delta_counts / 4096) * 1000Hz * 60s
-// RPM = delta_counts * (60000 / 4096) ≈ delta_counts * 14.6484
-// 在 Q16 格式下： 系数 = (60000 / 4096) * 65536 = 960000
-#define SPEED_CAL_COEFF      (192000)      
-
-// 2. 速度限幅
-#define MAX_SPEED_RPM        (1800)        // 物理极限 1800 RPM
-#define SPEED_LIMIT_Q16      (117964800)   // 1800 * 65536 (Q16格式的目标上限)
-
-// 3. 速度环输出限幅 (即允许的最大 Q 轴电流)
-#define SPEED_PID_OUT_MAX  (98304)      // 1.5A * 65536
-
+/* 速度计算系数计算公式：
+   RPM = (delta_counts / 4096) * 1000Hz * 60s
+   RPM = delta_counts * 14.6484
+   Q16系数 = 14.6484 * 65536 = 960000 
+*/
+#define SPEED_SAMPLING_FREQ  1000      // 速度环频率 1000Hz
+#define SPEED_CAL_COEFF      960000    // Q16格式系数
+#define SPEED_PID_OUT_MAX    65536
 #endif

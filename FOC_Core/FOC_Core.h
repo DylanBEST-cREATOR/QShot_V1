@@ -49,5 +49,56 @@ void FC_FOC_Core(FOC_Core_t *core);
 extern void FC_SpeedLoop_Execute(uint16_t current_angle);
 extern void FC_SpeedLoop_Reset(uint16_t current_angle);
 void FC_FOC_OpenLoop_Rotate(FOC_Core_t *core, q16_t v_mag, q16_t angle_step);
+extern  void FC_SpeedControl_Init(PID_t *pid, LPF_t *lpf);
+
+/**
+ * @brief  计算机械转速 RPM (Q16)
+ * @param  current_raw: 当前编码器原始值 (0~4095)
+ * @param  last_raw:    上次编码器原始值
+ * @return q16_t: 实际转速 RPM (Q16)
+ */
+static __inline  q16_t AS5600_Calculate_RPM(uint16_t current_raw, uint16_t last_raw) {
+    int32_t delta = (int32_t)current_raw - (int32_t)last_raw;
+
+    // 处理 0-4095 临界点跳变
+    if (delta > 2048)  delta -= 4096;
+    if (delta < -2048) delta += 4096;
+
+    // 转换为 RPM (Q16)
+    // 使用 int64 确保中间结果不溢出
+    return (q16_t)(((int64_t)delta * SPEED_CAL_COEFF));
+}
+/**
+ * @brief  计算机械转速 RPM (修正为纯 Q16 标尺)
+ */
+//static __inline  q16_t AS5600_Calculate_RPM(uint16_t current_raw, uint16_t last_raw) {
+//    int32_t delta = (int32_t)current_raw - (int32_t)last_raw;
+
+//    // 处理 0-4095 临界点跳变
+//    if (delta > 2048)  delta -= 4096;
+//    if (delta < -2048) delta += 4096;
+
+//    // 注意：delta(Q0) * SPEED_CAL_COEFF(Q16) = 结果直接就是 Q16 格式的 RPM
+//    // 这里绝对不能再右移 16 位，否则会损失 65536 倍精度
+//    return (q16_t)((int64_t)delta * SPEED_CAL_COEFF); 
+//}
+
+/**
+ * @brief  独立速度控制器
+ * @param  PID: 速度环专用 PID 结构体指针
+ * @param  target_rpm: 目标转速 (Q16)
+ * @param  fdb_rpm:    实际转速 (Q16)
+ * @return q16_t: 输出的 Iq 指令电流 (Q16)
+ */
+static __inline q16_t FC_Speed_Loop_Execute(PID_t *PID, q16_t target_rpm, q16_t fdb_rpm) {
+    // 1. 更新目标值
+    PID->Ref = target_rpm;
+
+    // 2. 调用通用的 PID 计算函数 (你之前写的 FS_PID_Calculate)
+    FS_PID_Calculate(PID, fdb_rpm);
+
+    // 3. 返回计算结果 (这个结果通常是 Iq 的目标值)
+    return PID->Output;
+}
 
 #endif /* __FOC_CORE_H */

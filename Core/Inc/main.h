@@ -67,8 +67,6 @@ void Error_Handler(void);
 #define VBUS_GPIO_Port GPIOA
 #define MOS_TEMP_Pin GPIO_PIN_5
 #define MOS_TEMP_GPIO_Port GPIOC
-#define TEST_GPIO_Pin GPIO_PIN_2
-#define TEST_GPIO_GPIO_Port GPIOB
 #define DRV_EN_Pin GPIO_PIN_12
 #define DRV_EN_GPIO_Port GPIOB
 #define INLA_Pin GPIO_PIN_13

@@ -6,7 +6,8 @@ SystemDataInit_t  SystemData_InitStructure;
 MotorState_t volatile AC_Motor_State;
 
 extern  FOC_Core_t FOC_Core_CTS;
-
+extern 	PID_t Speed_PID;
+extern LPF_t Speed_Filter;
 
 
 void AC_MySystem_Init(void)
@@ -16,6 +17,7 @@ void AC_MySystem_Init(void)
      DRV8301_Init();
 	 		 HAL_TIM_Base_Start_IT(&htim3);
     FC_Core_Init(&FOC_Core_CTS,8400);
+	  FC_SpeedControl_Init(&Speed_PID,&Speed_Filter);
     // 1. 开启 ADC 偏置校准（此时 PWM 是关闭的，MOE=0）
     AI_ADCOffset_Config();
     

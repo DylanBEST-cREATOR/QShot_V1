@@ -10,7 +10,7 @@ void AI_ADCOffset_Config(void){
     HAL_ADCEx_InjectedStart(&hadc2);
     // 启动主机 ADC1 并开启中断
     HAL_ADCEx_InjectedStart_IT(&hadc1);
-    
+//    
     // 启动定时器和触发通道
     HAL_TIM_Base_Start(&htim1);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);

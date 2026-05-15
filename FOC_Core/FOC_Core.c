@@ -53,12 +53,12 @@ void FC_Core_Init(FOC_Core_t *core, uint32_t t_pwm) {
     core->clarke_v.beta  = 0;
 
     // ==================== 5. 初始化 d 轴 PID 调节器 ====================
-core->pid_d.Kp = 12000;  // 
-core->pid_d.Ki = 100;   // 
+core->pid_d.Kp = 1152960;  // 
+core->pid_d.Ki = 105001;   // 
 core->pid_d.Kd = 0;
 
-core->pid_d.Out_Max   = 32768 ;      // 维持 SVPWM 最大矢量模长
-core->pid_d.Out_Min   = -32768;
+core->pid_d.Out_Max   =  32768 ;      // 维持 SVPWM 最大矢量模长
+core->pid_d.Out_Min   = - 32768;
     core->pid_d.Ref       = 0;
     core->pid_d.Fdb       = 0;
     core->pid_d.Last_Fdb  = 0;
@@ -69,11 +69,11 @@ core->pid_d.Out_Min   = -32768;
     // ==================== 6. 初始化 q 轴 PID 调节器 ====================
 // ==================== 重新校准后的 q 轴 PID 参数 (带宽 2kHz) ====================
 // ==================== 极低增益测试版 ====================
-core->pid_q.Kp = 12000;  // 恢复到接近原值
-core->pid_q.Ki = 100;   // 远大于你现在的 2000
+core->pid_q.Kp = 1152960;  // 恢复到接近原值
+core->pid_q.Ki = 105001;   // 远大于你现在的 2000
 core->pid_q.Kd = 0;
 core->pid_q.Out_Max   = 32768;       // 维持 SVPWM 最大矢量模长
-core->pid_q.Out_Min   = -32768;
+core->pid_q.Out_Min   = - 32768;
     core->pid_q.Ref       = 0;
     core->pid_q.Fdb       = 0;
     core->pid_q.Last_Fdb  = 0;
@@ -175,3 +175,35 @@ void FC_FOC_OpenLoop_Rotate(FOC_Core_t *core, q16_t v_mag, q16_t angle_step) {
     FS_SVPWM_Calculate(&core->svpwm);
 }
 
+/**
+ * @brief  速度环控制系统初始化
+ * @param  pid: 速度环 PID 结构体指针
+ * @param  lpf: 速度反馈滤波器结构体指针
+ */
+void FC_SpeedControl_Init(PID_t *pid, LPF_t *lpf) {
+    // ==================== 1. 速度 PID 参数配置 ====================
+    // 初始建议值：Kp=0.1, Ki=0.01 (以 Q16 格式表示)
+    // 速度环比较敏感，建议先从极小的增益开始调试
+    pid->Kp = 655;    // 0.1 * 65536
+    pid->Ki = 65;     // 0.01 * 65536
+    pid->Kd = 0;       // 速度环通常不需要 D 项
+
+    // 关键：速度环的输出限幅 = 电流环允许的最大 Iq 电流
+    // 使用你 APP_PARAMS_H 中定义的 SPEED_PID_OUT_MAX (比如 1.5A)
+    pid->Out_Max = SPEED_PID_OUT_MAX; 
+    pid->Out_Min = -SPEED_PID_OUT_MAX;
+
+    // 清零内部状态变量
+    pid->Ref      = 0;
+    pid->Fdb      = 0;
+    pid->Error    = 0;
+    pid->Integral = 0;
+    pid->Output   = 0;
+    pid->Last_Fdb = 0;
+
+    // ==================== 2. 速度反馈滤波器配置 ====================
+    // AS5600 噪声较大，Alpha 值建议设置在 0.05 ~ 0.2 之间
+    // Alpha 越小，滤波越强，但延迟越高
+    lpf->Alpha = 6554;     // 0.1 * 65536
+    lpf->LastOutput = 0;
+}
