@@ -201,8 +201,7 @@ static __inline void FS_SVPWM_Calculate(SVPWM_t *SVPWM_Compnents) {
     int32_t Tb = Ta + (T1 >> 1);
     int32_t Tc = Tb + (T2 >> 1);
 
-    // ==================== 7. 还原为定时器 Q0 格式并进行安全限幅 ====================
-    // 四舍五入还原，并确保 duty 不会因为过调制计算误差变成负数或超过 ARR
+
     #define SAT_DUTY(val, max) ((val < 0) ? 0 : ((val > (int32_t)max) ? max : val))
 
     uint32_t duty_a = SAT_DUTY((Ta + 32768) >> 16, t_pwm);

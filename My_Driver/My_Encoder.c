@@ -8,7 +8,7 @@ void ME_MyI2C_Init(void) {
 
 // 简单的微秒延迟，根据你的 CPU 频率调整，这里假设 F4 系列 168MHz
 void I2C_Delay(void) {
-    for(volatile int i = 0; i < 20; i++); 
+    for(volatile int i = 0; i < 3; i++); 
 }
 
 

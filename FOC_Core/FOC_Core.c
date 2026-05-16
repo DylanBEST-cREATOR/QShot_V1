@@ -57,8 +57,8 @@ core->pid_d.Kp = 1152960;  //
 core->pid_d.Ki = 105001;   // 
 core->pid_d.Kd = 0;
 
-core->pid_d.Out_Max   =  32768 ;      // 维持 SVPWM 最大矢量模长
-core->pid_d.Out_Min   = - 32768;
+core->pid_d.Out_Max   =  CURRENT_PID_OUT_MAX ;      // 维持 SVPWM 最大矢量模长
+core->pid_d.Out_Min   = - CURRENT_PID_OUT_MAX;
     core->pid_d.Ref       = 0;
     core->pid_d.Fdb       = 0;
     core->pid_d.Last_Fdb  = 0;
@@ -72,8 +72,8 @@ core->pid_d.Out_Min   = - 32768;
 core->pid_q.Kp = 1152960;  // 恢复到接近原值
 core->pid_q.Ki = 105001;   // 远大于你现在的 2000
 core->pid_q.Kd = 0;
-core->pid_q.Out_Max   = 32768;       // 维持 SVPWM 最大矢量模长
-core->pid_q.Out_Min   = - 32768;
+core->pid_q.Out_Max   = CURRENT_PID_OUT_MAX;       // 维持 SVPWM 最大矢量模长
+core->pid_q.Out_Min   = - CURRENT_PID_OUT_MAX;
     core->pid_q.Ref       = 0;
     core->pid_q.Fdb       = 0;
     core->pid_q.Last_Fdb  = 0;
@@ -182,11 +182,10 @@ void FC_FOC_OpenLoop_Rotate(FOC_Core_t *core, q16_t v_mag, q16_t angle_step) {
  */
 void FC_SpeedControl_Init(PID_t *pid, LPF_t *lpf) {
     // ==================== 1. 速度 PID 参数配置 ====================
-    // 初始建议值：Kp=0.1, Ki=0.01 (以 Q16 格式表示)
-    // 速度环比较敏感，建议先从极小的增益开始调试
-    pid->Kp = 655;    // 0.1 * 65536
-    pid->Ki = 65;     // 0.01 * 65536
-    pid->Kd = 0;       // 速度环通常不需要 D 项
+
+    pid->Kp = 4000;    
+    pid->Ki = 200;     
+    pid->Kd = 0;      
 
     // 关键：速度环的输出限幅 = 电流环允许的最大 Iq 电流
     // 使用你 APP_PARAMS_H 中定义的 SPEED_PID_OUT_MAX (比如 1.5A)
@@ -204,6 +203,6 @@ void FC_SpeedControl_Init(PID_t *pid, LPF_t *lpf) {
     // ==================== 2. 速度反馈滤波器配置 ====================
     // AS5600 噪声较大，Alpha 值建议设置在 0.05 ~ 0.2 之间
     // Alpha 越小，滤波越强，但延迟越高
-    lpf->Alpha = 6554;     // 0.1 * 65536
+    lpf->Alpha = 65536;     // 0.1 * 65536
     lpf->LastOutput = 0;
 }

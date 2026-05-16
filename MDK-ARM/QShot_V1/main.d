@@ -41,7 +41,12 @@ qshot_v1\main.o: ../Core/Inc/adc.h
 qshot_v1\main.o: ../Core/Inc/dma.h
 qshot_v1\main.o: ../Core/Inc/spi.h
 qshot_v1\main.o: ../Core/Inc/tim.h
-qshot_v1\main.o: ../Core/Inc/usb_otg.h
+qshot_v1\main.o: ../USB_DEVICE/App/usb_device.h
+qshot_v1\main.o: D:/STM32Cube_FW_F4_V1.28.3/Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h
+qshot_v1\main.o: ../USB_DEVICE/Target/usbd_conf.h
+qshot_v1\main.o: D:\keil5\keil\ARM\ARMCC\Bin\..\include\stdio.h
+qshot_v1\main.o: D:\keil5\keil\ARM\ARMCC\Bin\..\include\stdlib.h
+qshot_v1\main.o: D:\keil5\keil\ARM\ARMCC\Bin\..\include\string.h
 qshot_v1\main.o: ../Core/Inc/gpio.h
 qshot_v1\main.o: ../APP/APP_Control.h
 qshot_v1\main.o: ../APP/APP_Interface.h

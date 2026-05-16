@@ -15,21 +15,24 @@
 
 #define I_BASE_Q16  (655360)      // 10A    
 
+#define CURRENT_PID_OUT_MAX    37800
+
 // 电压物理参数
 #define V_BUS_MAX_PHYS       (62.7f)        // 3.3 * (1 + 18) = 62.7 V
 #define VBUS_CAL_COEFF       (1003)         // 62.7 * 16 = 1003.2 ≈ 1003
-#define V_BASE_Q16           (786432)      // 12.0 * 65536
+#define V_BASE_Q16           (786432)      // 24.0 
 
 
-//#define POLE_PAIRS 7   // 替换为你电机的实际极对数
+/* ==================== 速度环标幺化配置 (Base = 1800 RPM) ==================== */
+#define MAX_SPEED_RPM        1800.0f       // 标幺化基准转速
+#define SPEED_SAMPLING_FREQ  1000          // 采样频率 1kHz
 
-/* ==================== 速度环标幺化参数 ==================== */
-/* 速度计算系数计算公式：
-   RPM = (delta_counts / 4096) * 1000Hz * 60s
-   RPM = delta_counts * 14.6484
-   Q16系数 = 14.6484 * 65536 = 960000 
-*/
-#define SPEED_SAMPLING_FREQ  1000      // 速度环频率 1000Hz
-#define SPEED_CAL_COEFF      960000    // Q16格式系数
-#define SPEED_PID_OUT_MAX    65536
+// 新系数 = (960000 / 1800) ≈ 533
+// 计算逻辑：delta * (14.648 / 1800) * 65536
+#define SPEED_CAL_COEFF      533           
+
+// 速度环输出限幅 (Iq指令标幺值)
+// 假设你希望最大电流限制在 I_base 的 15%，则为 65536 * 0.15 ≈ 9830
+#define SPEED_PID_OUT_MAX    9830          
+#define SPEED_PID_OUT_MIN    -9830
 #endif

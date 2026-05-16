@@ -16,7 +16,7 @@ extern volatile uint16_t Global_AS5600_Raw_Angle;
 	uint8_t Debug_Toggle_Var = 0;
 	
 	PID_t Speed_PID;            // 速度环 PID 实例
-q16_t Target_RPM =800<<16;       // 用户设定的目标转速
+q16_t Target_RPM =32768;       // 用户设定的目标转速
 uint16_t Last_Encoder_Val = 0; 
 LPF_t Speed_Filter;
 	
@@ -85,7 +85,7 @@ void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef* hadc)
                 FOC_Core_CTS.current.adc_raw_3 = LL_ADC_INJ_ReadConversionData32(ADC2, LL_ADC_INJ_RANK_1);
 							
            
-                FOC_Core_CTS.pid_q.Ref = 32768; //正转
+//                FOC_Core_CTS.pid_q.Ref = 800; //正转
                 FOC_Core_CTS.pid_d.Ref = 0;
 
          
@@ -117,7 +117,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
         // --- 2. 计算实际转速并滤波 ---
         // 编码器噪声大，不滤波速度环很难调
-        q16_t raw_rpm = AS5600_Calculate_RPM(Global_AS5600_Raw_Angle, Last_Encoder_Val);
+        q16_t raw_rpm = AS5600_Calculate_Speed_PU(Global_AS5600_Raw_Angle, Last_Encoder_Val);
         q16_t filtered_rpm = FM_LPF_Calculate(&Speed_Filter, raw_rpm);
         
         Last_Encoder_Val = Global_AS5600_Raw_Angle;
@@ -128,11 +128,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
         // --- 4. 喂给电流环 ---
         if (AC_Motor_State == MOTOR_RUNNING) {
-//            FOC_Core_CTS.pid_q.Ref = iq_cmd;
-//            FOC_Core_CTS.pid_d.Ref = 0; // 通常 D 轴为 0
+            FOC_Core_CTS.pid_q.Ref = iq_cmd;
+            FOC_Core_CTS.pid_d.Ref = 0; // 通常 D 轴为 0
         } else {
-//            FOC_Core_CTS.pid_q.Ref = 0;
-//            Speed_PID.Integral = 0; // 非运行状态清除积分
+            FOC_Core_CTS.pid_q.Ref = 0;
+            Speed_PID.Integral = 0; // 非运行状态清除积分
         }
     }
 }

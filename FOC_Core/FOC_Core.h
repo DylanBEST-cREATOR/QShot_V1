@@ -57,16 +57,20 @@ extern  void FC_SpeedControl_Init(PID_t *pid, LPF_t *lpf);
  * @param  last_raw:    上次编码器原始值
  * @return q16_t: 实际转速 RPM (Q16)
  */
-static __inline  q16_t AS5600_Calculate_RPM(uint16_t current_raw, uint16_t last_raw) {
-    int32_t delta = (int32_t)current_raw - (int32_t)last_raw;
+/**
+ * @brief 计算标幺化转速 (Q16)
+ * @return 结果 65536 代表 1800 RPM
+ */
+// 1.0 (65536) = 1800 RPM
+#define SPEED_CAL_COEFF  533  
 
-    // 处理 0-4095 临界点跳变
+static __inline q16_t AS5600_Calculate_Speed_PU(uint16_t current_raw, uint16_t last_raw) {
+    int32_t delta = (int32_t)last_raw - (int32_t)current_raw;
     if (delta > 2048)  delta -= 4096;
     if (delta < -2048) delta += 4096;
 
-    // 转换为 RPM (Q16)
-    // 使用 int64 确保中间结果不溢出
-    return (q16_t)(((int64_t)delta * SPEED_CAL_COEFF));
+    // 返回值是标幺化后的原始速度（带有编码器阶梯噪声）
+    return -(q16_t)(((int64_t)delta * SPEED_CAL_COEFF));
 }
 /**
  * @brief  计算机械转速 RPM (修正为纯 Q16 标尺)
@@ -90,14 +94,16 @@ static __inline  q16_t AS5600_Calculate_RPM(uint16_t current_raw, uint16_t last_
  * @param  fdb_rpm:    实际转速 (Q16)
  * @return q16_t: 输出的 Iq 指令电流 (Q16)
  */
-static __inline q16_t FC_Speed_Loop_Execute(PID_t *PID, q16_t target_rpm, q16_t fdb_rpm) {
-    // 1. 更新目标值
-    PID->Ref = target_rpm;
-
-    // 2. 调用通用的 PID 计算函数 (你之前写的 FS_PID_Calculate)
-    FS_PID_Calculate(PID, fdb_rpm);
-
-    // 3. 返回计算结果 (这个结果通常是 Iq 的目标值)
+/**
+ * @brief 速度环执行函数 (标幺化逻辑)
+ * @param PID 速度环PID结构体
+ * @param LPF 速度反馈低通滤波器结构体
+ * @param target_pu 目标转速标幺值 (Q16)
+ * @param fdb_pu_raw 采样得到的原始标幺值转速
+ */
+static __inline q16_t FC_Speed_Loop_Execute(PID_t *PID, q16_t target_pu, q16_t fdb_pu_filtered) {
+    PID->Ref = target_pu;
+    FS_PID_Calculate(PID, fdb_pu_filtered);
     return PID->Output;
 }
 
