@@ -53,8 +53,8 @@ void FC_Core_Init(FOC_Core_t *core, uint32_t t_pwm) {
     core->clarke_v.beta  = 0;
 
     // ==================== 5. 初始化 d 轴 PID 调节器 ====================
-core->pid_d.Kp = 1152960;  // 
-core->pid_d.Ki = 105001;   // 
+core->pid_d.Kp = 84000;  // 
+core->pid_d.Ki = 6000;   // 
 core->pid_d.Kd = 0;
 
 core->pid_d.Out_Max   =  CURRENT_PID_OUT_MAX ;      // 维持 SVPWM 最大矢量模长
@@ -69,8 +69,8 @@ core->pid_d.Out_Min   = - CURRENT_PID_OUT_MAX;
     // ==================== 6. 初始化 q 轴 PID 调节器 ====================
 // ==================== 重新校准后的 q 轴 PID 参数 (带宽 2kHz) ====================
 // ==================== 极低增益测试版 ====================
-core->pid_q.Kp = 1152960;  // 恢复到接近原值
-core->pid_q.Ki = 105001;   // 远大于你现在的 2000
+core->pid_q.Kp = 84000;  // 恢复到接近原值
+core->pid_q.Ki = 6000;   // 远大于你现在的 2000
 core->pid_q.Kd = 0;
 core->pid_q.Out_Max   = CURRENT_PID_OUT_MAX;       // 维持 SVPWM 最大矢量模长
 core->pid_q.Out_Min   = - CURRENT_PID_OUT_MAX;
@@ -89,8 +89,8 @@ core->pid_q.Out_Min   = - CURRENT_PID_OUT_MAX;
     core->svpwm.Duty_A    = 0;
     core->svpwm.Duty_B    = 0;
     core->svpwm.Duty_C    = 0;
-		core->lpfi_d.Alpha = 13107; // 0.1 in Q16
-    core->lpfi_q.Alpha = 13107;
+		core->lpfi_d.Alpha = 65536; // 0.1 in Q16
+    core->lpfi_q.Alpha = 65536;
     core->lpfi_d.LastOutput = 0;
     core->lpfi_q.LastOutput = 0;
 }
@@ -108,8 +108,8 @@ void FC_FOC_Core(FOC_Core_t *core) {
     FS_ADCValueToCurrent(&core->current);
 
     // 2. 母线电压更新：转换母线电压 ADC 原始值为 Q16 标幺值，更新至 SVPWM
-    core->svpwm.U_dc = FS_Convert_Vbus_To_PU(core->adc_vbus_raw);
-
+//    core->svpwm.U_dc = FS_Convert_Vbus_To_PU(core->adc_vbus_raw);
+    core->svpwm.U_dc = 65536;
     // 3. 计算当前电角度对应的正余弦值 sin(theta) & cos(theta)
     FM_fastSinCos(core->angle, &core->sincos);
 
@@ -127,8 +127,8 @@ void FC_FOC_Core(FOC_Core_t *core) {
     FS_PID_Calculate(&core->pid_q, core->park_i.q);
 
     // 将 PI 调节器的输出赋给电压旋转坐标 (Vd, Vq)
-    core->park_v.d = -core->pid_d.Output;
-    core->park_v.q = -core->pid_q.Output;
+    core->park_v.d = core->pid_d.Output;
+    core->park_v.q = core->pid_q.Output;
 
     // 7. 反 Park 变换：(Vd, Vq) -> (Valpha, Vbeta)
     FT_InvPark_Transform(&core->park_v, &core->sincos, &core->clarke_v);
@@ -183,8 +183,8 @@ void FC_FOC_OpenLoop_Rotate(FOC_Core_t *core, q16_t v_mag, q16_t angle_step) {
 void FC_SpeedControl_Init(PID_t *pid, LPF_t *lpf) {
     // ==================== 1. 速度 PID 参数配置 ====================
 
-    pid->Kp = 4000;    
-    pid->Ki = 200;     
+    pid->Kp = 8000;    
+    pid->Ki = 100;     
     pid->Kd = 0;      
 
     // 关键：速度环的输出限幅 = 电流环允许的最大 Iq 电流
@@ -203,6 +203,6 @@ void FC_SpeedControl_Init(PID_t *pid, LPF_t *lpf) {
     // ==================== 2. 速度反馈滤波器配置 ====================
     // AS5600 噪声较大，Alpha 值建议设置在 0.05 ~ 0.2 之间
     // Alpha 越小，滤波越强，但延迟越高
-    lpf->Alpha = 65536;     // 0.1 * 65536
+    lpf->Alpha = 3277;     // 0.1 * 65536
     lpf->LastOutput = 0;
 }

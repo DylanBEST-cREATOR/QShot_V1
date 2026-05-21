@@ -59,5 +59,7 @@ qshot_v1\main.o: ../FOC_Core/FOC_Math.h
 qshot_v1\main.o: ../FOC_Core/FOC_Qformat.h
 qshot_v1\main.o: ../FOC_Core/FOC_Transforms.h
 qshot_v1\main.o: ../FOC_Core/FOC_Svpwm.h
+qshot_v1\main.o: D:\keil5\keil\ARM\ARMCC\Bin\..\include\stdbool.h
 qshot_v1\main.o: ../FOC_Core/FOC_PID.h
 qshot_v1\main.o: ../FOC_Core/FOC_Observer.h
+qshot_v1\main.o: ../APP/host_comm.h

@@ -40,6 +40,7 @@
 "qshot_v1\app_interface.o"
 "qshot_v1\app_control.o"
 "qshot_v1\app_protect.o"
+"qshot_v1\host_comm.o"
 "qshot_v1\my_gatedriver.o"
 "qshot_v1\my_encoder.o"
 "qshot_v1\usb_device.o"

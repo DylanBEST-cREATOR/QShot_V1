@@ -7,14 +7,25 @@ void MyDriver_Init(void){
 }
 void AI_ADCOffset_Config(void){
     // 启动从机 ADC2（双 ADC 模式下 Slave 需先准备好）
-    HAL_ADCEx_InjectedStart(&hadc2);
-    // 启动主机 ADC1 并开启中断
-    HAL_ADCEx_InjectedStart_IT(&hadc1);
-//    
-    // 启动定时器和触发通道
-    HAL_TIM_Base_Start(&htim1);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
-	 __HAL_TIM_MOE_DISABLE(&htim1); }
+			HAL_ADCEx_InjectedStart(&hadc2);
+			// 启动主机 ADC1 并开启中断
+			HAL_ADCEx_InjectedStart_IT(&hadc1);
+			//    
+			// 启动定时器和触发通道
+			HAL_TIM_Base_Start(&htim1);
+			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+			//	 __HAL_TIM_MOE_DISABLE(&htim1);
+			//        // 开启全桥驱动，仅执行一次
+			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+			HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
+			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+			HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
+			HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+			HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
+
+			// 如果是高级定时器 TIM1，必须使能主输出 (MOE)
+			__HAL_TIM_MOE_ENABLE(&htim1); 
+}
 
 
 
@@ -34,7 +45,9 @@ uint8_t AI_OffsetCalibration_Process(Current_Sense_t* pOffsets)
     
     // 1. 累加采样值
     internal_sum_b += HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1);
+	
     internal_sum_c += HAL_ADCEx_InjectedGetValue(&hadc2, ADC_INJECTED_RANK_1);
+
     internal_count++;
 
     // 2. 检查是否达到采样目标
@@ -48,8 +61,8 @@ uint8_t AI_OffsetCalibration_Process(Current_Sense_t* pOffsets)
 			    pOffsets->offset_3 = (int32_t)(internal_sum_c >> 10);
 
         // 重要：清零所有静态变量，为下次校准做准备
-//        internal_sum_b = 0;
-//        internal_sum_c = 0;
+        internal_sum_b = 0;
+        internal_sum_c = 0;
         internal_count = 0; 
         
         return 1; // 校准完成

@@ -1966,6 +1966,16 @@
               <FileType>5</FileType>
               <FilePath>..\APP\APP_Params.h</FilePath>
             </File>
+            <File>
+              <FileName>host_comm.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\APP\host_comm.h</FilePath>
+            </File>
+            <File>
+              <FileName>host_comm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\APP\host_comm.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

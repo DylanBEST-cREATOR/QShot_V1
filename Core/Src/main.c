@@ -28,6 +28,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "APP_Control.h"
+#include "host_comm.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,6 +53,10 @@
 extern MotorState_t AC_Motor_State;
 volatile uint16_t Global_AS5600_Raw_Angle; // 在 main 的 while(1) 里更新
 volatile uint16_t AS5600_Zero_Offset;      // 在 ROTOR_ALIGN 结束时记录
+HostComm_Manager_t g_host_comm;
+extern FOC_Core_t FOC_Core_CTS;
+extern q16_t Target_RPM;
+extern volatile int32_t g_motor_speed_rpm;
 // user debug variables
 
 /* USER CODE END PV */
@@ -104,7 +109,7 @@ int main(void)
   MX_TIM3_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-
+  HostComm_Init(&g_host_comm, &FOC_Core_CTS, &g_motor_speed_rpm);
 
   //
   AC_MySystem_Init();	
@@ -118,7 +123,7 @@ int main(void)
   {
 //		// 1. 持续读取当前原始角度
 //    uint16_t temp_angle = _ME_AS5600_Read_Raw_Angle();
-//    
+    HostComm_Main_Process(&g_host_comm);
 //    // 只有读到的不是错误值（0xFFFF）时才更新全局变量
 //    if(temp_angle != 0xFFFF) {
 //        Global_AS5600_Raw_Angle = temp_angle;

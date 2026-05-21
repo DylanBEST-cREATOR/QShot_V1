@@ -3,18 +3,18 @@
 
 
 /* ==================== 电流与电压标幺化全局常数 ==================== */
-// 电流物理参数
-#define ADC_VREF             3.3f
-#define SAMPLING_RES         0.0005f
-#define ADC_DATARANGE        4096           // 12位ADC转换物理量时，分母必须用2^12 = 4096
-#define OPAMP_GAIN           40             
+/* ==================== 电流与电压标幺化全局常数 ==================== */
+#define ADC_VREF              3.3f
+#define SAMPLING_RES          0.0005f
+#define ADC_DATARANGE         4096 
+#define OPAMP_GAIN            40              // 已经修改为 40 倍
 
+// 基准电流为 10A
+#define I_BASE                10.0f 
 
-#define I_CAL_COEFF          (2640)        //q16格式  //（ADC_VREF/SAMPLING_RES*OPAMP_GAIN）* (65536/ADC_DATARANGE),用adc读数乘以这个系数=标幺化后的电流
-
-
-#define I_BASE_Q16  (655360)      // 10A    
-
+// 一步到位标幺化系数（Q31格式）
+// 3.3 / (0.0005 * 40 * 4096 * 10) * 2147483648 = 8650738
+#define I_SCALE_FACTOR        (8650738LL)     // 更新此处的系数
 #define CURRENT_PID_OUT_MAX    37800
 
 // 电压物理参数
@@ -35,4 +35,34 @@
 // 假设你希望最大电流限制在 I_base 的 15%，则为 65536 * 0.15 ≈ 9830
 #define SPEED_PID_OUT_MAX    9830          
 #define SPEED_PID_OUT_MIN    -9830
+
+
+
+#define TIM1_ARR_TICKS              4200U
+#define SVPWM_TPWM_TICKS            8400U
+
+/*
+ * 低侧采样安全边界。
+ *
+ * 你现在 CCR4 = 1，触发非常靠近波谷。
+ * 死区 150ns 约等于 25 ticks。
+ * ADC 15 cycles 约等于 120 ticks。
+ * 再加上 MOSFET、DRV8301 CSA、ADC 输入稳定裕量，
+ * 推荐先用 360。
+ */
+#define SVPWM_CCR_MIN_LIMIT         360U
+
+/*
+ * 是否对上边界也做限制。
+ * 对称限制可以减少极端调制带来的非线性。
+ */
+#define SVPWM_CCR_MAX_LIMIT         (TIM1_ARR_TICKS - SVPWM_CCR_MIN_LIMIT)
+
+/*
+ * 是否使用按中心缩放的限制方式。
+ * 1：推荐，保持三相波形比例，只压缩调制幅度
+ * 0：直接硬裁剪，更简单但失真更明显
+ */
+#define SVPWM_USE_CENTER_SCALE_LIMIT  1
+
 #endif

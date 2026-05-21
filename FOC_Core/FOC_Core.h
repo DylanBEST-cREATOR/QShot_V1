@@ -72,20 +72,6 @@ static __inline q16_t AS5600_Calculate_Speed_PU(uint16_t current_raw, uint16_t l
     // 返回值是标幺化后的原始速度（带有编码器阶梯噪声）
     return -(q16_t)(((int64_t)delta * SPEED_CAL_COEFF));
 }
-/**
- * @brief  计算机械转速 RPM (修正为纯 Q16 标尺)
- */
-//static __inline  q16_t AS5600_Calculate_RPM(uint16_t current_raw, uint16_t last_raw) {
-//    int32_t delta = (int32_t)current_raw - (int32_t)last_raw;
-
-//    // 处理 0-4095 临界点跳变
-//    if (delta > 2048)  delta -= 4096;
-//    if (delta < -2048) delta += 4096;
-
-//    // 注意：delta(Q0) * SPEED_CAL_COEFF(Q16) = 结果直接就是 Q16 格式的 RPM
-//    // 这里绝对不能再右移 16 位，否则会损失 65536 倍精度
-//    return (q16_t)((int64_t)delta * SPEED_CAL_COEFF); 
-//}
 
 /**
  * @brief  独立速度控制器
@@ -105,6 +91,32 @@ static __inline q16_t FC_Speed_Loop_Execute(PID_t *PID, q16_t target_pu, q16_t f
     PID->Ref = target_pu;
     FS_PID_Calculate(PID, fdb_pu_filtered);
     return PID->Output;
+}
+
+
+#define PWM_ARR_TICKS        4200U
+#define SVPWM_TPWM_TICKS     8400U
+#define FOC_ISR_FREQ_HZ      20000U
+#define MOTOR_POLE_PAIRS     7U
+
+static inline uint32_t PWM_ClampCCR(uint32_t x)
+{
+    if (x > PWM_ARR_TICKS) return PWM_ARR_TICKS;
+    return x;
+}
+
+
+
+static inline q16_t OpenLoop_CalcAngleStep(int32_t mech_rpm, uint8_t pole_pairs)
+{
+    /*
+     * angle_step = 2π_Q16 * electrical_freq / FOC_freq
+     * electrical_freq = mech_rpm / 60 * pole_pairs
+     *
+     * Q16_2PI = 131072
+     */
+    return (q16_t)(((int64_t)Q16_2PI * mech_rpm * pole_pairs) /
+                   (60LL * FOC_ISR_FREQ_HZ));
 }
 
 #endif /* __FOC_CORE_H */

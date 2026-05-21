@@ -27,16 +27,16 @@ void AC_MySystem_Init(void)
     // 3. 当状态变为 ROTOR_ALIGN 时，在这里开启 PWM 输出
     if(AC_Motor_State == ROTOR_ALIGN)
     {
-        // 开启全桥驱动，仅执行一次
-        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-        HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
-        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-        HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
-        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-        HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
-        
-        // 如果是高级定时器 TIM1，必须使能主输出 (MOE)
-        __HAL_TIM_MOE_ENABLE(&htim1); 
+//        // 开启全桥驱动，仅执行一次
+//        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+//        HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
+//        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+//        HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
+//        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+//        HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
+//        
+//        // 如果是高级定时器 TIM1，必须使能主输出 (MOE)
+//        __HAL_TIM_MOE_ENABLE(&htim1); 
     }
 
     // 4. 等待预定位结束

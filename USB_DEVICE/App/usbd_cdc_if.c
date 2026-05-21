@@ -22,7 +22,7 @@
 #include "usbd_cdc_if.h"
 
 /* USER CODE BEGIN INCLUDE */
-
+#include "host_comm.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,6 +31,8 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+static char rx_line_buf[256];
+static uint16_t rx_line_len = 0;
 
 /* USER CODE END PV */
 
@@ -49,7 +51,7 @@
   */
 
 /* USER CODE BEGIN PRIVATE_TYPES */
-
+extern HostComm_Manager_t g_host_comm;
 /* USER CODE END PRIVATE_TYPES */
 
 /**
@@ -260,11 +262,43 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   */
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
-  /* USER CODE BEGIN 6 */
-  USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
-  USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-  return (USBD_OK);
-  /* USER CODE END 6 */
+    for (uint32_t i = 0; i < *Len; i++)
+    {
+        char c = (char)Buf[i];
+
+        if (c == '\r')
+        {
+            continue;
+        }
+
+        if (c == '\n')
+        {
+            if (rx_line_len > 0)
+            {
+                HostComm_Rx_Parse(&g_host_comm,
+                                  (uint8_t *)rx_line_buf,
+                                  rx_line_len);
+
+                rx_line_len = 0;
+            }
+        }
+        else
+        {
+            if (rx_line_len < sizeof(rx_line_buf) - 1)
+            {
+                rx_line_buf[rx_line_len++] = c;
+            }
+            else
+            {
+                rx_line_len = 0;
+            }
+        }
+    }
+
+    USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+    USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+
+    return USBD_OK;
 }
 
 /**
@@ -316,6 +350,23 @@ static int8_t CDC_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
 }
 
 /* USER CODE BEGIN PRIVATE_FUNCTIONS_IMPLEMENTATION */
+uint8_t CDC_IsTxReady_FS(void)
+{
+    if (hUsbDeviceFS.dev_state != USBD_STATE_CONFIGURED)
+    {
+        return 0;
+    }
+
+    USBD_CDC_HandleTypeDef *hcdc =
+        (USBD_CDC_HandleTypeDef *)hUsbDeviceFS.pClassData;
+
+    if (hcdc == NULL)
+    {
+        return 0;
+    }
+
+    return (hcdc->TxState == 0);
+}
 
 /* USER CODE END PRIVATE_FUNCTIONS_IMPLEMENTATION */
 
